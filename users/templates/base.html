@@ -1,0 +1,103 @@
+
+<!-- main/templates/base.html -->
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}University Recommendation{% endblock %}</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <!-- Material Design Bootstrap -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.20.0/css/mdb.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+     <!-- Select2 CSS -->
+     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+   
+   <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+        }
+        .hero-section {
+            background: url('https://via.placeholder.com/1920x600') center center/cover no-repeat;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+        }
+        .section {
+            padding: 60px 0;
+        }
+        .bg-primary {
+            background-color: #3f51b5 !important;
+        }
+        
+        .preferred_subjects_str ,
+        .disliked_subjects_str {
+            margin-bottom: 50px;
+        }
+        .preferred_subjects_str > div,
+        .disliked_subjects_str > div{
+            display: flex;
+        }
+
+        .preferred_subjects_str > div  > div > label,
+        .disliked_subjects_str > div  > div > label{
+            width: max-content !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">أختيار التخصص الجامعي</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">عن الموقع</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#how-it-works">كيفية الاستخدام</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#faq">الأسئلة الشائعة</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">اتصل بنا</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    
+    {% block content %}{% endblock %}
+    
+    <!-- Footer -->
+    <footer class="bg-primary text-white text-center py-3">
+        <p>&copy; 2024 موقع الاستبيان. جميع الحقوق محفوظة.</p>
+    </footer>
+ <!-- Bootstrap Bundle with Popper -->
+ <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+ <!-- jQuery (required for Select2) -->
+ <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+ <!-- Select2 JS -->
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+ <script>
+     $(document).ready(function() {
+         $('.select2').select2({
+             width: '100%',
+             dir: 'rtl'
+         });
+     });
+ </script>
+
+</body>
+</html>

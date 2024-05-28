@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}التنبؤ{% endblock %}
+
+{% block content %}
+<section id="about" class="section">
+    <div class="container">
+        <h2 class="text-center mb-4">تنبؤ فرع الجامعة</h2>
+        <form method="post" action="{% url 'predict' %}">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <div class="mb-3">
+                {{ form.high_school_gpa_float.label_tag }}
+                {{ form.high_school_gpa_float }}
+                {{ form.high_school_gpa_float.errors }}
+            </div>
+            <div class="mb-3">
+                {{ form.region_str.label_tag }}
+                {{ form.region_str }}
+                {{ form.region_str.errors }}
+            </div>
+            <div class="mb-3">
+                {{ form.preferred_living_str.label_tag }}
+                {{ form.preferred_living_str }}
+                {{ form.preferred_living_str.errors }}
+            </div>
+            <div class="mb-3">
+                {{ form.choice_factors_str.label_tag }}
+                {{ form.choice_factors_str }}
+                {{ form.choice_factors_str.errors }}
+            </div>
+            <div class="mb-3">
+                {{ form.biggest_difficulty_str.label_tag }}
+                {{ form.biggest_difficulty_str }}
+                {{ form.biggest_difficulty_str.errors }}
+            </div>
+            <div class="mb-3">
+                {{ form.preferred_subjects_str.label_tag }}
+                {{ form.preferred_subjects_str }}
+                {{ form.preferred_subjects_str.errors }}
+            </div>
+            <div class="mb-3">
+                {{ form.disliked_subjects_str.label_tag }}
+                {{ form.disliked_subjects_str }}
+                {{ form.disliked_subjects_str.errors }}
+            </div>
+            <div class="mb-3">
+                {{ form.university_type_str.label_tag }}
+                {{ form.university_type_str }}
+                {{ form.university_type_str.errors }}
+            </div>
+            <div class="mb-3">
+                {{ form.preferred_study_duration_int.label_tag }}
+                {{ form.preferred_study_duration_int }}
+                {{ form.preferred_study_duration_int.errors }}
+            </div>
+            <button type="submit" class="btn btn-primary">تنبؤ</button>
+        </form>
+    </div>
+</section>
+{% endblock %}

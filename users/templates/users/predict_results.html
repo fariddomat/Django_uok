@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}نتائج التنبؤ{% endblock %}
+
+{% block content %}
+<section class="section" style="min-height: 80vh;">
+    <div class="container">
+        <h2 class="text-center mb-4">نتائج التنبؤ</h2>
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                قائمة التخصصات المتوقعة
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for branch in predictions %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ branch }}
+                        <span class="badge bg-success rounded-pill">متاح</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</section>
+{% endblock %}
