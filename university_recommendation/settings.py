@@ -47,6 +47,9 @@ INSTALLED_APPS = [
 SITE_ID = 1
 AUTH_USER_MODEL = 'users.CustomUser'
 
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'home'  # Optional: where to redirect after successful login
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

@@ -7,6 +7,10 @@ import numpy as np
 import joblib
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import OneHotEncoder
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import user_passes_test
+from .models import University, Specification
+from .forms import UniversityForm, SpecificationForm
 
 def predict(request):
     if request.method == "POST":
@@ -116,3 +120,81 @@ def register(request):
 
 def home(request):
     return render(request, 'users/home.html')
+
+
+
+def is_admin(user):
+    return user.is_authenticated and user.is_admin
+
+
+@user_passes_test(is_admin)
+def manage_universities(request):
+    universities = University.objects.all()
+    return render(request, 'universities/manage_universities.html', {'universities': universities})
+
+@user_passes_test(is_admin)
+def create_university(request):
+    if request.method == 'POST':
+        form = UniversityForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('manage_universities')
+    else:
+        form = UniversityForm()
+    return render(request, 'universities/university_form.html', {'form': form, 'title': 'Create University'})
+
+@user_passes_test(is_admin)
+def update_university(request, pk):
+    university = get_object_or_404(University, pk=pk)
+    if request.method == 'POST':
+        form = UniversityForm(request.POST, instance=university)
+        if form.is_valid():
+            form.save()
+            return redirect('manage_universities')
+    else:
+        form = UniversityForm(instance=university)
+    return render(request, 'universities/university_form.html', {'form': form, 'title': 'Update University'})
+
+@user_passes_test(is_admin)
+def delete_university(request, pk):
+    university = get_object_or_404(University, pk=pk)
+    if request.method == 'POST':
+        university.delete()
+        return redirect('manage_universities')
+    return render(request, 'universities/confirm_delete.html', {'object': university})
+
+@user_passes_test(is_admin)
+def specification_list(request):
+    specifications = Specification.objects.all()
+    return render(request, 'specifications/specification_list.html', {'specifications': specifications})
+
+@user_passes_test(is_admin)
+def specification_create(request):
+    if request.method == "POST":
+        form = SpecificationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('specification_list')
+    else:
+        form = SpecificationForm()
+    return render(request, 'specifications/specification_form.html', {'form': form})
+
+@user_passes_test(is_admin)
+def specification_update(request, pk):
+    specification = get_object_or_404(Specification, pk=pk)
+    if request.method == "POST":
+        form = SpecificationForm(request.POST, instance=specification)
+        if form.is_valid():
+            form.save()
+            return redirect('specification_list')
+    else:
+        form = SpecificationForm(instance=specification)
+    return render(request, 'specifications/specification_form.html', {'form': form})
+
+@user_passes_test(is_admin)
+def specification_delete(request, pk):
+    specification = get_object_or_404(Specification, pk=pk)
+    if request.method == "POST":
+        specification.delete()
+        return redirect('specification_list')
+    return render(request, 'specifications/specification_confirm_delete.html', {'specification': specification})

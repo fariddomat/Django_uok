@@ -1,6 +1,22 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models import CustomUser
+from .models import University, Specification
+
+class UniversityForm(forms.ModelForm):
+    class Meta:
+        model = University
+        fields = ['universityName', 'location', 'type', 'specializations']
+        widgets = {
+            'universityName': forms.TextInput(attrs={'class': 'form-control'}),
+            'location': forms.TextInput(attrs={'class': 'form-control'}),
+            'type': forms.Select(attrs={'class': 'form-control'}),
+            'specializations': forms.SelectMultiple(attrs={'class': 'form-control'}),
+        }
+class SpecificationForm(forms.ModelForm):
+    class Meta:
+        model = Specification
+        fields = ['specificationName', 'description', 'requirements']
 
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
