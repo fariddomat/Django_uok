@@ -2,35 +2,40 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h1>Manage Universities</h1>
-    <a href="{% url 'create_university' %}" class="btn btn-primary mb-3">Add University</a>
-    <table class="table table-bordered table-striped">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Location</th>
-                <th>Type</th>
-                <th>Specializations</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for university in universities %}
-            <tr>
-                <td>{{ university.universityName }}</td>
-                <td>{{ university.location }}</td>
-                <td>{{ university.type }}</td>
-                <td>{{ university.specializations.all|join:", " }}</td>
-                <td>
-                    <a href="{% url 'update_university' university.pk %}" class="btn btn-warning btn-sm">Edit</a>
-                    <form action="{% url 'delete_university' university.pk %}" method="post" style="display:inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="card shadow-lg">
+        <div class="card-body">
+           <h1 class="card-title">Manage Universities</h1>
+            <a href="{% url 'create_university' %}" class="btn btn-primary mb-3">Add University</a>
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Location</th>
+                        <th>Type</th>
+                        <th>Specializations</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for university in universities %}
+                    <tr>
+                        <td>{{ university.universityName }}</td>
+                        <td>{{ university.location }}</td>
+                        <td>{{ university.type }}</td>
+                        <td>{{ university.specializations.all|join:", " }}</td>
+                        <td>
+                            <a href="{% url 'update_university' university.pk %}" class="btn btn-warning btn-sm">Edit</a>
+                            <form action="{% url 'delete_university' university.pk %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
+
 {% endblock %}

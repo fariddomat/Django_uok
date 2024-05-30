@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth import login, authenticate
 from .forms import CustomUserCreationForm
 from .forms import PredictionForm
@@ -11,6 +12,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import user_passes_test
 from .models import University, Specification
 from .forms import UniversityForm, SpecificationForm
+from .models import Specification
 
 def predict(request):
     if request.method == "POST":
@@ -112,7 +114,10 @@ def register(request):
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
+            # Manually specifying the backend
+            backend = 'django.contrib.auth.backends.ModelBackend'  # Use the correct backend here
+            user.backend = backend
+            login(request, user, backend=backend)
             return redirect('home')
     else:
         form = CustomUserCreationForm()
@@ -163,38 +168,39 @@ def delete_university(request, pk):
         return redirect('manage_universities')
     return render(request, 'universities/confirm_delete.html', {'object': university})
 
-@user_passes_test(is_admin)
-def specification_list(request):
-    specifications = Specification.objects.all()
-    return render(request, 'specifications/specification_list.html', {'specifications': specifications})
 
 @user_passes_test(is_admin)
-def specification_create(request):
-    if request.method == "POST":
+def manage_specifications(request):
+    specifications = Specification.objects.all()
+    return render(request, 'specifications/manage_specifications.html', {'specifications': specifications})
+
+@user_passes_test(is_admin)
+def create_specification(request):
+    if request.method == 'POST':
         form = SpecificationForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('specification_list')
+            return redirect('manage_specifications')
     else:
         form = SpecificationForm()
-    return render(request, 'specifications/specification_form.html', {'form': form})
+    return render(request, 'specifications/specification_form.html', {'form': form, 'title': 'Create Specification'})
 
 @user_passes_test(is_admin)
-def specification_update(request, pk):
+def update_specification(request, pk):
     specification = get_object_or_404(Specification, pk=pk)
-    if request.method == "POST":
+    if request.method == 'POST':
         form = SpecificationForm(request.POST, instance=specification)
         if form.is_valid():
             form.save()
-            return redirect('specification_list')
+            return redirect('manage_specifications')
     else:
         form = SpecificationForm(instance=specification)
-    return render(request, 'specifications/specification_form.html', {'form': form})
+    return render(request, 'specifications/specification_form.html', {'form': form, 'title': 'Update Specification'})
 
 @user_passes_test(is_admin)
-def specification_delete(request, pk):
+def delete_specification(request, pk):
     specification = get_object_or_404(Specification, pk=pk)
-    if request.method == "POST":
+    if request.method == 'POST':
         specification.delete()
-        return redirect('specification_list')
+        return redirect('manage_specifications')
     return render(request, 'specifications/specification_confirm_delete.html', {'specification': specification})

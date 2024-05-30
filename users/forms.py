@@ -6,17 +6,54 @@ from .models import University, Specification
 class UniversityForm(forms.ModelForm):
     class Meta:
         model = University
+        REGION_CHOICES = [
+            ("دمشق", "دمشق"),
+            ("ريف دمشق", "ريف دمشق"),
+            ("حلب", "حلب"),
+            ("حمص", "حمص"),
+            ("حماة", "حماة"),
+            ("اللاذقية", "اللاذقية"),
+            ("طرطوس", "طرطوس"),
+            ("إدلب", "إدلب"),
+            ("درعا", "درعا"),
+            ("السويداء", "السويداء"),
+            ("القنيطرة", "القنيطرة"),
+            ("دير الزور", "دير الزور"),
+            ("الرقة", "الرقة"),
+            ("الحسكة", "الحسكة"),
+        ]
+        TYPE_CHOICES = [
+            ("حكومية", "حكومية"),
+            ("خاصة", "خاصة"),
+        ]
         fields = ['universityName', 'location', 'type', 'specializations']
         widgets = {
             'universityName': forms.TextInput(attrs={'class': 'form-control'}),
-            'location': forms.TextInput(attrs={'class': 'form-control'}),
-            'type': forms.Select(attrs={'class': 'form-control'}),
-            'specializations': forms.SelectMultiple(attrs={'class': 'form-control'}),
+            'location': forms.Select(choices=REGION_CHOICES,  attrs={'class': 'form-control'}),
+            'type': forms.Select(choices=TYPE_CHOICES,  attrs={'class': 'form-control'}),
+            'specializations': forms.SelectMultiple(attrs={'class': 'form-control select2'}),
         }
+    specializations = forms.ModelMultipleChoiceField(
+        queryset=Specification.objects.all(),
+        widget=forms.SelectMultiple(attrs={'class': 'form-control select2'}),
+        required=True
+    )
+    def __init__(self, *args, **kwargs):
+        super(UniversityForm, self).__init__(*args, **kwargs)
+        self.fields['specializations'].label_from_instance = self.specialization_label_from_instance
+
+    def specialization_label_from_instance(self, obj):
+        return f"{obj.specificationName} - {obj.requirements}"
+
 class SpecificationForm(forms.ModelForm):
     class Meta:
         model = Specification
         fields = ['specificationName', 'description', 'requirements']
+        widgets = {
+            'specificationName': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control'}),
+            'requirements': forms.TextInput(attrs={'class': 'form-control'}),
+         }
 
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
