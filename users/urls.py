@@ -3,6 +3,7 @@ from .views import register, home, predict, prediction_result_view
 from .views import manage_universities, create_university, update_university, delete_university
 from .views import manage_specifications, create_specification, update_specification, delete_specification
 from django.contrib.auth import views as auth_views
+from .views import admin_user_list_view, admin_user_detail_view
 
 urlpatterns = [
     path('register/', register, name='register'),
@@ -22,6 +23,8 @@ urlpatterns = [
 
     path('accounts/login/', auth_views.LoginView.as_view(), name='login'),  # Add this line
     path('logout/', auth_views.LogoutView.as_view(next_page='home'), name='logout'),  # Ensure 'home' or any other page is your homepage
-
+    path('users/manage/', admin_user_list_view, name='admin_user_list'),
+    path('users/manage/<int:user_id>/', admin_user_detail_view, name='admin_user_detail'),
+  
 
 ]

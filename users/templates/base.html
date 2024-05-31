@@ -119,9 +119,11 @@
                             الإدارة
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="universitiesDropdown">
+                            <li><a class="dropdown-item" href="{% url 'admin_user_list' %}">المستخدمين</a></li>
+                            <hr>
                             <li><a class="dropdown-item" href="{% url 'manage_universities' %}">إدارة الجامعات</a></li>
                             <li><a class="dropdown-item" href="{% url 'create_university' %}">إضافة جامعة جديدة</a></li>
-                      
+                            <hr>
                             <li><a class="dropdown-item" href="{% url 'manage_specifications' %}">إدارة التخصصات</a></li>
                             <li><a class="dropdown-item" href="{% url 'create_specification' %}">إضافة تخصص جديد</a></li>
                         </ul>

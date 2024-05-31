@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <div class="card shadow-lg mx-auto" >
+        <div class="card-body">
+    <h1>قائمة المستخدمين</h1>
+    <ul class="list-group">
+        {% for user in users %}
+        <li class="list-group-item">
+            <a href="{% url 'admin_user_detail' user.id %}">{{ user.username }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+</div>
+</div>
+{% endblock %}

@@ -13,7 +13,7 @@ class Subject(models.Model):
 
 
 class Questionnaire(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='questionnaires')
     high_school_gpa = models.FloatField()
     region = models.CharField(max_length=255)
     preferred_living = models.CharField(max_length=255, default="")
@@ -24,11 +24,17 @@ class Questionnaire(models.Model):
     university_type = models.CharField(max_length=50, default="")
     preferred_study_duration = models.IntegerField(default="4")
 
+    def __str__(self):
+        return f"Questionnaire {self.id} for {self.user.username}"
+
 class Prediction(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    questionnaire = models.ForeignKey(Questionnaire, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='predictions')
+    questionnaire = models.ForeignKey(Questionnaire, on_delete=models.CASCADE, related_name='predictions_q')
     recommended_branches = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Prediction {self.id} for {self.user.username}"
 
 class University(models.Model):
     universityID = models.AutoField(primary_key=True)

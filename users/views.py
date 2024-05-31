@@ -12,17 +12,18 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import user_passes_test
 from .models import University, Specification
 from .forms import UniversityForm, SpecificationForm
-from .models import Specification, Questionnaire, Prediction
+from .models import Specification, Questionnaire, Prediction, CustomUser
 from django.contrib.auth.decorators import login_required
 
-# Load the trained model and preprocessing artifacts
-model = joblib.load("random_forest_model.pkl")
-onehot_encoder = joblib.load("onehot_encoder.pkl")
-train_columns = joblib.load("train_columns.pkl")
 
 
 @login_required
 def predict(request):
+    # Load the trained model and preprocessing artifacts
+    model = joblib.load("random_forest_model.pkl")
+    onehot_encoder = joblib.load("onehot_encoder.pkl")
+    train_columns = joblib.load("train_columns.pkl")
+
     if request.method == 'POST':
         form = PredictionForm(request.POST)
         if form.is_valid():
@@ -85,11 +86,56 @@ def predict(request):
             top3_indices = np.argsort(prediction_proba, axis=1)[:, -3:]
             top3_predictions = [[model.classes_[i] for i in row] for row in top3_indices]
             
+            
+            # Logical constraints for preferred subjects based on interested branches
+            preferred_subjects_mapping = {
+                "علوم الكمبيوتر": ["التكنولوجيا والحاسوب", "الرياضيات", "اللغة الانكليزية"],
+                "هندسة البرمجيات": ["التكنولوجيا والحاسوب", "الرياضيات"],
+                "الطب البشري": ["علم الأحياء", "الكيمياء"],
+                "طب الأسنان": ["علم الأحياء", "الكيمياء"],
+                "الصيدلة": ["علم الأحياء", "الكيمياء"],
+                "الهندسة المعمارية": ["الرياضيات", "الفيزياء"],
+                "الهندسة المدنية": ["الرياضيات", "الفيزياء"],
+                "هندسة التحكم الآلي": ["الرياضيات", "الفيزياء"],
+                "الأداب": ["اللغة العربية", "اللغة الانكليزية", "العلوم الاجتماعية"],
+                "الحقوق": ["العلوم الاجتماعية", "اللغة العربية"],
+                "العلوم الطبيعية": ["علم الأحياء", "الكيمياء", "الفيزياء"],
+                "رياض الأطفال": ["العلوم الاجتماعية", "التربية"],
+                "التربية": ["العلوم الاجتماعية", "التربية"],
+                "الرياضيات": ["الرياضيات"],
+                "الفيزياء": ["الفيزياء"],
+                "الكيمياء": ["الكيمياء"],
+                "الموسيقى": ["الفنون", "الثقافة"]
+            }
+
+            # Get the disliked subjects
+            disliked_subjects = input_data["disliked_subjects_str"].split(", ")
+
+            # Filter predictions based on logical constraints
+            filtered_predictions = []
+            for branch in top3_predictions[0]:
+                preferred_subjects = preferred_subjects_mapping.get(branch, [])
+                if not any(disliked in preferred_subjects for disliked in disliked_subjects):
+                    filtered_predictions.append(branch)
+
+            # If less than 3 predictions remain, add more from the sorted list
+            if len(filtered_predictions) < 3:
+                sorted_predictions = [model.classes_[i] for i in np.argsort(prediction_proba, axis=1)[0][::-1]]
+                for pred in sorted_predictions:
+                    preferred_subjects = preferred_subjects_mapping.get(pred, [])
+                    if pred not in filtered_predictions and not any(disliked in preferred_subjects for disliked in disliked_subjects):
+                        filtered_predictions.append(pred)
+                    if len(filtered_predictions) == 3:
+                        break
+
+            # Output the filtered top three predictions
+            print("Filtered Top 3 Interested Branches:", filtered_predictions[:3])
+
             # Save the prediction
             prediction = Prediction.objects.create(
                 user=user,
                 questionnaire=questionnaire,
-                recommended_branches=", ".join(top3_predictions[0])
+                recommended_branches=", ".join(filtered_predictions)
             )
 
 
@@ -102,7 +148,7 @@ def predict(request):
 @login_required
 def prediction_result_view(request, prediction_id):
     prediction = Prediction.objects.get(id=prediction_id, user=request.user)
-    recommended_branches = prediction.recommended_branches.split(", ")
+    recommended_branches = prediction.recommended_branches.split(", ")[::-1]
     print(recommended_branches)
     return render(request, 'users/predict_results.html', {'prediction': prediction, 'recommended_branches': recommended_branches})
 
@@ -201,3 +247,23 @@ def delete_specification(request, pk):
         specification.delete()
         return redirect('manage_specifications')
     return render(request, 'specifications/specification_confirm_delete.html', {'specification': specification})
+
+
+
+@user_passes_test(is_admin)
+def admin_user_list_view(request):
+    users = CustomUser.objects.filter(is_user=True)
+    return render(request, 'users/admin_user_list.html', {'users': users})
+
+@user_passes_test(is_admin)
+def admin_user_detail_view(request, user_id):
+    user = get_object_or_404(CustomUser, id=user_id)
+    
+    questionnaires = user.questionnaires.all()
+    predictions = user.predictions.all()
+
+    return render(request, 'users/admin_user_detail.html', {
+        'user': user,
+        'questionnaires': questionnaires,
+        'predictions': predictions,
+    })
