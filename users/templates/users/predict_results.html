@@ -1,24 +1,18 @@
-{% extends 'base.html' %}
-
-{% block title %}نتائج التنبؤ{% endblock %}
+{% extends "base.html" %}
 
 {% block content %}
-<section class="section" style="min-height: 80vh;">
-    <div class="container">
-        <h2 class="text-center mb-4">نتائج التنبؤ</h2>
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                قائمة التخصصات المتوقعة
-            </div>
-            <ul class="list-group list-group-flush">
-                {% for branch in predictions %}
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        {{ branch }}
-                        <span class="badge bg-success rounded-pill">متاح</span>
-                    </li>
+<div class="container mt-4">
+    <div class="card shadow-lg mx-auto" style="max-width: 600px;">
+        <div class="card-body">
+            <h1 class="card-title text-center">نتيجة التوقع</h1>
+            <p class="card-text">التخصصات المقترحة:</p>
+            <ul class="list-group">
+                {% for branch in recommended_branches %}
+                <li class="list-group-item">{{ branch }}</li>
                 {% endfor %}
             </ul>
+            <a href="{% url 'predict' %}" class="btn btn-secondary mt-3">توقع جديد</a>
         </div>
     </div>
-</section>
+</div>
 {% endblock %}

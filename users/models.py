@@ -2,8 +2,6 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 class CustomUser(AbstractUser):
-    preferredSubjects = models.ManyToManyField('Subject', related_name='preferred_by')
-    dislikedSubjects = models.ManyToManyField('Subject', related_name='disliked_by')
     is_user = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
 
@@ -13,23 +11,24 @@ class Subject(models.Model):
     def __str__(self):
         return self.name
 
+
 class Questionnaire(models.Model):
-    questionnaireID = models.AutoField(primary_key=True)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    highSchoolGPA = models.FloatField()
-    choiceFactors = models.CharField(max_length=255)
-    biggestDifficulty = models.CharField(max_length=255)
+    high_school_gpa = models.FloatField()
+    region = models.CharField(max_length=255)
+    preferred_living = models.CharField(max_length=255, default="")
+    choice_factors = models.CharField(max_length=255, default="")
+    biggest_difficulty = models.CharField(max_length=255, default="")
+    preferred_subjects = models.CharField(max_length=255, default="")
+    disliked_subjects = models.CharField(max_length=255, default="")
+    university_type = models.CharField(max_length=50, default="")
+    preferred_study_duration = models.IntegerField(default="4")
 
-    def submit(self):
-        pass
-
-class Recommendation(models.Model):
-    recommendationID = models.AutoField(primary_key=True)
+class Prediction(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    recommendedBranches = models.CharField(max_length=255)
-
-    def generateRecommendations(self):
-        pass
+    questionnaire = models.ForeignKey(Questionnaire, on_delete=models.CASCADE)
+    recommended_branches = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 class University(models.Model):
     universityID = models.AutoField(primary_key=True)

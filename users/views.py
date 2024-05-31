@@ -12,22 +12,49 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import user_passes_test
 from .models import University, Specification
 from .forms import UniversityForm, SpecificationForm
-from .models import Specification
+from .models import Specification, Questionnaire, Prediction
+from django.contrib.auth.decorators import login_required
 
+# Load the trained model and preprocessing artifacts
+model = joblib.load("random_forest_model.pkl")
+onehot_encoder = joblib.load("onehot_encoder.pkl")
+train_columns = joblib.load("train_columns.pkl")
+
+
+@login_required
 def predict(request):
-    if request.method == "POST":
+    if request.method == 'POST':
         form = PredictionForm(request.POST)
         if form.is_valid():
-            input_data = form.cleaned_data
-            input_data['preferred_subjects_str'] = ', '.join(input_data['preferred_subjects_str'])
-            input_data['disliked_subjects_str'] = ', '.join(input_data['disliked_subjects_str'])
+            data = form.cleaned_data
+            user = request.user
 
-            # Load the trained model and preprocessing artifacts
-            model = joblib.load("random_forest_model.pkl")
-            onehot_encoder = joblib.load("onehot_encoder.pkl")
-            train_columns = joblib.load("train_columns.pkl")
+            # Save the questionnaire
+            questionnaire = Questionnaire.objects.create(
+                user=user,
+                high_school_gpa=data['high_school_gpa_float'],
+                region=data['region_str'],
+                preferred_living=data['preferred_living_str'],
+                choice_factors=data['choice_factors_str'],
+                biggest_difficulty=data['biggest_difficulty_str'],
+                preferred_subjects=", ".join(data['preferred_subjects_str']),
+                disliked_subjects=", ".join(data['disliked_subjects_str']),
+                university_type=data['university_type_str'],
+                preferred_study_duration=data['preferred_study_duration_int']
+            )
 
-            # Convert input data to DataFrame
+            # Prepare data for prediction
+            input_data = {
+                "high_school_gpa_float": data['high_school_gpa_float'],
+                "region_str": data['region_str'],
+                "preferred_living_str": data['preferred_living_str'],
+                "choice_factors_str": data['choice_factors_str'],
+                "biggest_difficulty_str": data['biggest_difficulty_str'],
+                "preferred_subjects_str": ", ".join(data['preferred_subjects_str']),
+                "disliked_subjects_str": ", ".join(data['disliked_subjects_str']),
+                "university_type_str": data['university_type_str'],
+                "preferred_study_duration_int": data['preferred_study_duration_int']
+            }
             input_df = pd.DataFrame([input_data])
 
             # Apply one-hot encoding to categorical columns
@@ -57,57 +84,27 @@ def predict(request):
             # Get the top three most likely classes (interested branches)
             top3_indices = np.argsort(prediction_proba, axis=1)[:, -3:]
             top3_predictions = [[model.classes_[i] for i in row] for row in top3_indices]
+            
+            # Save the prediction
+            prediction = Prediction.objects.create(
+                user=user,
+                questionnaire=questionnaire,
+                recommended_branches=", ".join(top3_predictions[0])
+            )
 
-            # Logical constraints for preferred subjects based on interested branches
-            preferred_subjects_mapping = {
-                "علوم الكمبيوتر": ["التكنولوجيا والحاسوب", "الرياضيات", "اللغة الانكليزية"],
-                "هندسة البرمجيات": ["التكنولوجيا والحاسوب", "الرياضيات"],
-                "الطب البشري": ["علم الأحياء", "الكيمياء"],
-                "طب الأسنان": ["علم الأحياء", "الكيمياء"],
-                "الصيدلة": ["علم الأحياء", "الكيمياء"],
-                "الهندسة المعمارية": ["الرياضيات", "الفيزياء"],
-                "الهندسة المدنية": ["الرياضيات", "الفيزياء"],
-                "هندسة التحكم الآلي": ["الرياضيات", "الفيزياء"],
-                "الأداب": ["اللغة العربية", "اللغة الانكليزية", "العلوم الاجتماعية"],
-                "الحقوق": ["العلوم الاجتماعية", "اللغة العربية"],
-                "العلوم الطبيعية": ["علم الأحياء", "الكيمياء", "الفيزياء"],
-                "رياض الأطفال": ["العلوم الاجتماعية", "التربية"],
-                "التربية": ["العلوم الاجتماعية", "التربية"],
-                "الرياضيات": ["الرياضيات"],
-                "الفيزياء": ["الفيزياء"],
-                "الكيمياء": ["الكيمياء"],
-                "الموسيقى": ["الفنون", "الثقافة"]
-            }
 
-            # Get the disliked subjects
-            disliked_subjects = input_data["disliked_subjects_str"].split(", ")
-
-            # Filter predictions based on logical constraints
-            filtered_predictions = []
-            for branch in top3_predictions[0]:
-                preferred_subjects = preferred_subjects_mapping.get(branch, [])
-                if not any(disliked in preferred_subjects for disliked in disliked_subjects):
-                    filtered_predictions.append(branch)
-
-            # If less than 3 predictions remain, add more from the sorted list
-            if len(filtered_predictions) < 3:
-                sorted_predictions = [model.classes_[i] for i in np.argsort(prediction_proba, axis=1)[0][::-1]]
-                for pred in sorted_predictions:
-                    preferred_subjects = preferred_subjects_mapping.get(pred, [])
-                    if pred not in filtered_predictions and not any(disliked in preferred_subjects for disliked in disliked_subjects):
-                        filtered_predictions.append(pred)
-                    if len(filtered_predictions) == 3:
-                        break
-
-            # Output the top three predictions
-            context = {
-                "form": form,
-                "predictions": filtered_predictions[:3]
-            }
-            return render(request, "users/predict_results.html", context)
+            return redirect('prediction_result_view', prediction_id=prediction.id)
     else:
         form = PredictionForm()
-    return render(request, "users/predict.html", {"form": form})
+
+    return render(request, 'users/predict.html', {'form': form})
+
+@login_required
+def prediction_result_view(request, prediction_id):
+    prediction = Prediction.objects.get(id=prediction_id, user=request.user)
+    recommended_branches = prediction.recommended_branches.split(", ")
+    print(recommended_branches)
+    return render(request, 'users/predict_results.html', {'prediction': prediction, 'recommended_branches': recommended_branches})
 
 def register(request):
     if request.method == 'POST':
