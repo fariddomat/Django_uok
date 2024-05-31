@@ -1,16 +1,19 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
 {% block title %}اختيار التخصص الجامعي{% endblock %}
 
 {% block content %}
     <!-- Hero Section -->
     <section class="hero-section text-center">
         <div class="container">
-            <h1 class="display-4">مرحبا بكم في موقع الاستبيان</h1>
-            <p class="lead">اختيار الرغبات الجامعية بسهولة ويسر</p>
-            <a href="#about" class="btn btn-light btn-lg">تعرف أكثر</a>
+            <h1 class="display-4 animated fadeInDown">مرحبا بكم في موقع الاستبيان</h1>
+            <p class="lead animated fadeInUp">اختيار الرغبات الجامعية بسهولة ويسر</p>
+            <a href="#about" class="btn btn-light btn-lg animated fadeInUp">تعرف أكثر</a>
         </div>
     </section>
+    
     <!-- About Section -->
     <section id="about" class="section">
         <div class="container">
@@ -18,29 +21,32 @@
             <p class="text-center">هذا الموقع مخصص لطلاب البكلوريا لمساعدتهم في اختيار الرغبات الجامعية بطريقة سهلة وبسيطة.</p>
         </div>
     </section>
+    
     <!-- How it Works Section -->
     <section id="how-it-works" class="section bg-light">
         <div class="container">
             <h2 class="text-center mb-4">كيفية الاستخدام</h2>
-            <div class="row">
-                <div class="col-md-4 text-center">
-                    <i class="fas fa-user-graduate fa-3x mb-3"></i>
+            <div class="row text-center">
+                <div class="col-md-4">
+                    <i class="fas fa-user-graduate fa-3x mb-3 text-primary"></i>
                     <h4>التسجيل</h4>
                     <p>قم بإنشاء حساب وتسجيل الدخول.</p>
                 </div>
-                <div class="col-md-4 text-center">
-                    <i class="fas fa-edit fa-3x mb-3"></i>
+                <div class="col-md-4">
+                    <i class="fas fa-edit fa-3x mb-3 text-primary"></i>
                     <h4>إجراء الاستبيان</h4>
                     <p>أجب على الأسئلة الخاصة بالاستبيان.</p>
                 </div>
-                <div class="col-md-4 text-center">
-                    <i class="fas fa-chart-line fa-3x mb-3"></i>
+                <div class="col-md-4">
+                    <i class="fas fa-chart-line fa-3x mb-3 text-primary"></i>
                     <h4>استلام النتائج</h4>
+
                     <p>استلم نتائجك وتعرف على الرغبات المناسبة.</p>
                 </div>
             </div>
         </div>
     </section>
+    
     <!-- FAQ Section -->
     <section id="faq" class="section">
         <div class="container">
@@ -66,35 +72,14 @@
                     </h2>
                     <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
                         <div class="accordion-body">
-                            يتم احتساب النتائج بناءً على إجاباتك في الاستبيان باستخدام خوارزمية خاصة.
+                            يتم احتساب النتائج بناءً على إجاباتك في الاستبيان باستخدام خوارزمية خاصة. <br>
+                            الخوارزمية المستخدمة هي Random Forest
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
-    <!-- Contact Section -->
-    <section id="contact" class="section bg-light">
-        <div class="container">
-            <h2 class="text-center mb-4">اتصل بنا</h2>
-            <form>
-                <div class="mb-3">
-                    <label for="name" class="form-label">الاسم</label>
-                    <input type="text" class="form-control" id="name" required>
-                </div>
-                <div class="mb-3">
-                    <label for="email" class="form-label">البريد الإلكتروني</label>
-                    <input type="email" class="form-control" id="email" required>
-                </div>
-                <div class="mb-3">
-                    <label for="message" class="form-label">الرسالة</label>
-                    <textarea class="form-control" id="message" rows="4" required></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">إرسال</button>
-            </form>
-        </div>
-    </section>
-    <!-- Footer -->
-   
     
+  
 {% endblock %}

@@ -2,6 +2,7 @@
 <!-- main/templates/base.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+    {% load static %}
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -49,14 +50,6 @@
         padding: 10px 0;
     }
 
-        .hero-section {
-            background: url('https://via.placeholder.com/1920x600') center center/cover no-repeat;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #fff;
-        }
         .section {
             padding: 60px 0;
         }
@@ -83,6 +76,58 @@
             margin: auto;
             margin-top: 10%;
         }
+
+        .hero-section {
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('{% static "img/hero-bg.jpg" %}') center center no-repeat;
+    background-size: cover;
+    color: #fff;
+    padding: 100px 0;
+    text-align: center;
+    height: 100vh;
+}
+
+.hero-section h1, .hero-section p {
+    animation-duration: 2s;
+    animation-fill-mode: both;
+}
+
+.hero-section h1 {
+    animation-name: fadeInDown;
+}
+
+.hero-section p {
+    animation-name: fadeInUp;
+}
+
+.section {
+    padding: 60px 0;
+}
+
+.section.bg-light {
+    background-color: #f8f9fa;
+}
+
+.accordion-button {
+    font-weight: bold;
+}
+
+.accordion-item {
+    border: none;
+    border-bottom: 1px solid #ddd;
+}
+
+.accordion-item:last-child {
+    border-bottom: none;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.form-label {
+    font-weight: bold;
+}
     </style>
     {% block extra_head %}{% endblock %}
 </head>
@@ -100,6 +145,10 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'predict' %}">الاستبيان</a>
                     </li>
+                    <!-- university_list -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'university_list' %}">الجامعات</a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#about">عن الموقع</a>
                     </li>
@@ -109,10 +158,11 @@
                     <li class="nav-item">
                         <a class="nav-link" href="#faq">الأسئلة الشائعة</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#contact">اتصل بنا</a>
-                    </li>
+                   
                     {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'user_questionnaires' %}">استبياناتي</a>
+                    </li>
                     {% if user.is_admin %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="universitiesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -132,7 +182,8 @@
                     <li class="nav-item">
                         <form method="post" action="{% url 'logout' %}">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-link nav-link" style="padding: 0; border: none; background: none;">تسجيل الخروج</button>
+                            <button type="submit" class="btn btn-link nav-link" style="padding: 0; border: none; background: none; padding-top: 3px;
+                            font-size: 15px;">تسجيل الخروج</button>
                         </form>    
                     </li>
                 {% else %}

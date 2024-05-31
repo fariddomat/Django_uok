@@ -6,6 +6,7 @@ from .forms import PredictionForm
 import pandas as pd
 import numpy as np
 import joblib
+import random
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import OneHotEncoder
 from django.shortcuts import render, get_object_or_404, redirect
@@ -14,7 +15,11 @@ from .models import University, Specification
 from .forms import UniversityForm, SpecificationForm
 from .models import Specification, Questionnaire, Prediction, CustomUser
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 
+# model = joblib.load("random_forest_model.pkl")
+# onehot_encoder = joblib.load("onehot_encoder.pkl")
+# train_columns = joblib.load("train_columns.pkl")
 
 
 @login_required
@@ -147,11 +152,42 @@ def predict(request):
 
 @login_required
 def prediction_result_view(request, prediction_id):
-    prediction = Prediction.objects.get(id=prediction_id, user=request.user)
+    prediction = Prediction.objects.get(id=prediction_id)
     recommended_branches = prediction.recommended_branches.split(", ")[::-1]
-    print(recommended_branches)
-    return render(request, 'users/predict_results.html', {'prediction': prediction, 'recommended_branches': recommended_branches})
 
+    # Retrieve the user's questionnaire for additional data
+    questionnaire = prediction.questionnaire
+
+    # Filter universities based on region and preferred living
+    universities = University.objects.filter(
+        Q(location__icontains=questionnaire.region) & 
+        Q(type__icontains=questionnaire.university_type)
+    )
+
+
+    # Match universities with the filtered predictions
+    matched_universities = set()
+    for university in universities:
+        specializations = university.specializations.filter(specificationName__in=recommended_branches)
+        for spec in specializations:
+            if questionnaire.high_school_gpa >= float(spec.requirements):
+                matched_universities.add(university)
+
+    matched_universities = list(matched_universities)
+    # If less than 3 universities matched, randomly select more to make up the difference
+    if len(matched_universities) < 3:
+        all_universities = list(University.objects.all())
+        additional_universities = random.sample(all_universities, 3 - len(matched_universities))
+        matched_universities.extend(additional_universities)
+
+    # Get the names of the matched universities
+    matched_university_names = [uni.universityName for uni in matched_universities]
+
+    return render(request, 'users/predict_results.html', {
+        'prediction': prediction,
+        'recommended_branches':  random.sample(recommended_branches,3),
+        'matched_universities': matched_university_names
+    })
 def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
@@ -267,3 +303,22 @@ def admin_user_detail_view(request, user_id):
         'questionnaires': questionnaires,
         'predictions': predictions,
     })
+
+@login_required
+def user_questionnaires_view(request):
+    user = request.user
+    questionnaires = Questionnaire.objects.filter(user=user)
+    predictions = user.predictions.all()
+    
+    return render(request, 'users/user_questionnaires.html', {
+        'questionnaires': questionnaires,
+        'predictions': predictions,
+
+    })
+
+def university_list(request):
+    universities = University.objects.all()
+    context = {
+        'universities': universities
+    }
+    return render(request, 'universities/university_list.html', context)

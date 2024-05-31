@@ -9,7 +9,7 @@
             <div>
                 {% for questionnaire in questionnaires %}
                 <div class="mb-4">
-                    <h2 class="mb-3">الاستبيان</h2> 
+                    <h2 class="mb-3">الاستبيان</h2>
                     <ul class="list-group mb-2">
                         <li class="list-group-item">
                             <strong>المعدل الثانوي:</strong> {{ questionnaire.high_school_gpa }}
@@ -43,14 +43,13 @@
                     <ul class="list-group">
                         {% for prediction in predictions %}
                         {% if prediction.questionnaire.id == questionnaire.id %}
-                               
-                    <h3 class="mt-4">التوقعات </h3>     
+                                    
+                    <h3 class="mt-4">التوقعات </h3>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <span>
                                 التخصصات المقترحة:
-                                
                                 <a class="btn btn-outline" href="/predict/result/{{ prediction.id  }}">النتيجة</a>
-                             
+
                             </span>
                         </li>
                           {% endif %}

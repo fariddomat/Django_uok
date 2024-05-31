@@ -49,7 +49,7 @@ AUTH_USER_MODEL = 'users.CustomUser'
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'  # Optional: where to redirect after successful login
-
+STATIC_URL = '/static/'
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

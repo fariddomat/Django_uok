@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="container mt-4 mb-4">
     <div class="card shadow-lg mx-auto" style="max-width: 600px;">
         <div class="card-body">
             <h1 class="card-title text-center">نتيجة التوقع</h1>
@@ -9,6 +9,12 @@
             <ul class="list-group">
                 {% for branch in recommended_branches %}
                 <li class="list-group-item">{{ branch }}</li>
+                {% endfor %}
+            </ul>
+            <p class="card-text mt-4">الجامعات المقترحة:</p>
+            <ul class="list-group">
+                {% for university in matched_universities %}
+                <li class="list-group-item">{{ university }}</li>
                 {% endfor %}
             </ul>
             <a href="{% url 'predict' %}" class="btn btn-secondary mt-3">توقع جديد</a>

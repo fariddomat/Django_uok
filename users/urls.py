@@ -3,7 +3,7 @@ from .views import register, home, predict, prediction_result_view
 from .views import manage_universities, create_university, update_university, delete_university
 from .views import manage_specifications, create_specification, update_specification, delete_specification
 from django.contrib.auth import views as auth_views
-from .views import admin_user_list_view, admin_user_detail_view
+from .views import admin_user_list_view, admin_user_detail_view,user_questionnaires_view, university_list
 
 urlpatterns = [
     path('register/', register, name='register'),
@@ -11,6 +11,7 @@ urlpatterns = [
     path('predict/', predict, name='predict'),
     path('predict/result/<int:prediction_id>/', prediction_result_view, name='prediction_result_view'),
 
+    path('universities/index', university_list, name='university_list'),
     path('universities/', manage_universities, name='manage_universities'),
     path('universities/create/', create_university, name='create_university'),
     path('universities/update/<int:pk>/', update_university, name='update_university'),
@@ -25,6 +26,7 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(next_page='home'), name='logout'),  # Ensure 'home' or any other page is your homepage
     path('users/manage/', admin_user_list_view, name='admin_user_list'),
     path('users/manage/<int:user_id>/', admin_user_detail_view, name='admin_user_detail'),
-  
+    path('my-questionnaires/', user_questionnaires_view, name='user_questionnaires'),
+
 
 ]
